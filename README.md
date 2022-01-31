@@ -316,3 +316,145 @@ class ContatosEleitoraisIndex < Esse::Index
   end
 end
 ```
+
+## Importando os dados
+
+Primeiro passo é criar o índice com o comando `esse index create`. Esse comando recebe como argumento principal o nome da classe do índice. O comando permite também criar um alias para o índice de forma opcional conforme o exemplo abaixo:
+
+```bash
+$ bundle exec esse index create ContatosEleitoraisIndex --alias=true
+Loading configuration file: config/esse.rb
+[0.060 ms] Index esse_tcc_contatos_eleitorais_20220131085358 successfuly created
+ --> Aliases: esse_tcc_contatos_eleitorais
+```
+
+Note que foi criado o índice `esse_tcc_contatos_eleitorais_20220131085358` e um alias `esse_tcc_contatos_eleitorais` para ele.
+
+Os mappings são carregados automaticamente pelo framework. O exemplo abaixo mostra a estructura do mappings do índice:
+
+```bash
+$ curl -s "localhost:9200/esse_tcc_contatos_eleitorais/_mapping?pretty"
+{
+  "esse_tcc_contatos_eleitorais_20220131085358" : {
+    "mappings" : {
+      "partido" : {
+        "properties" : {
+          "email" : {
+            "type" : "keyword"
+          },
+          "nome" : {
+            "type" : "text"
+          },
+          "num_legenda" : {
+            "type" : "short"
+          },
+          "sigla" : {
+            "type" : "keyword"
+          }
+        }
+      },
+      "candidato" : {
+        "properties" : {
+          "cargo" : {
+            "type" : "keyword"
+          },
+          "email" : {
+            "type" : "keyword"
+          },
+          "nome" : {
+            "type" : "text"
+          },
+          "num_legenda" : {
+            "type" : "short"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Tendo índice criado agora podemos importar os dados. O comando `esse index import` recebe como argumento o nome da classe do índice. O comando importa todos documentos dos CSV definitos no `collection` normalizados pelo `serializer`.
+
+```bash
+$ bundle exec esse index import ContatosEleitoraisIndex
+Loading configuration file: config/esse.rb
+```
+
+Como resultado temos os tipos `partido` e `candidato` criados com os respectivos documentos.
+```bash
+$ curl -s localhost:9200/esse_tcc_contatos_eleitorais/candidato/_count
+{"count":556542,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+```
+
+```bash
+$ curl -s localhost:9200/esse_tcc_contatos_eleitorais/partido/_count
+{"count":31,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+```
+
+O comando `esse index reset` funciona como um combinado de `create` + `import` + `update_alias` + `delete`.
+
+## Acessando os dados
+Além da interface de linha de comando, o framework disponibiliza uma série de ferramentas para acessar e manipular índices e documentos. O exemplo abaixo mostra alguns exemplos de como acessar os dados usando [console](./bin/console):
+
+Buscando um documento através do ID:
+```ruby
+> ContatosEleitoraisIndex::Partido.elasticsearch.find(id: 17)
+=> {"_index"=>"esse_tcc_contatos_eleitorais_20220131085358",
+ "_type"=>"partido",
+ "_id"=>"17",
+ "_version"=>1,
+ "found"=>true,
+ "_source"=>{"name"=>"PARTIDO SOCIAL LIBERAL", "sigla"=>"PSL", "email"=>"contato@psl.org.br", "num_legenda"=>17}}
+> ContatosEleitoraisIndex::Partido.elasticsearch.find(id: 1)
+=> nil
+> ContatosEleitoraisIndex::Partido.elasticsearch.find!(id: 1)
+Elasticsearch::Transport::Transport::Errors::NotFound: [404] {"_index":"esse_tcc_contatos_eleitorais_20220131085358","_type":"partido","_id":"1","found":false}
+```
+
+Exibindo quantidade de documentos:
+```ruby
+> ContatosEleitoraisIndex::Partido.elasticsearch.count
+=> 31
+```
+
+Criando um novo documento:
+```ruby
+> data = {
+  name: 'Aliança pelo Brasil',
+  sigla: 'ALIANCA',
+  email: 'contato@aliancapelobrasil.org',
+  num_legenda: 38
+}
+=> {:name=>"Aliança pelo Brasil", :sigla=>"ALIANCA", :email=>"contato@aliancapelobrasil.org", :num_legenda=>38}
+
+> ContatosEleitoraisIndex::Partido.elasticsearch.index(id: 38, body: data)
+=> {"_index"=>"esse_tcc_contatos_eleitorais_20220131085358",
+ "_type"=>"partido",
+ "_id"=>"38",
+ "_version"=>1,
+ "result"=>"created",
+ "_shards"=>{"total"=>1, "successful"=>1, "failed"=>0},
+ "created"=>true}
+> ContatosEleitoraisIndex::Partido.elasticsearch.count
+=> 32
+```
+
+Removendo um documento:
+
+```ruby
+> ContatosEleitoraisIndex::Partido.elasticsearch.exist?(id: 38)
+=> true
+
+> ContatosEleitoraisIndex::Partido.elasticsearch.delete(id: 38)
+=> {"found"=>true,
+ "_index"=>"esse_tcc_contatos_eleitorais_20220131085358",
+ "_type"=>"partido",
+ "_id"=>"38",
+ "_version"=>2,
+ "result"=>"deleted",
+ "_shards"=>{"total"=>1, "successful"=>1, "failed"=>0}}
+
+> ContatosEleitoraisIndex::Partido.elasticsearch.exist?(id: 38)
+=> false
+```

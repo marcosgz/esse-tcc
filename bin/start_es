@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+set -vx
+
+DOCKER_NETWORK="esse"
+DOCKER_IMAGE="${DOCKER_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch:5.6.16}"
+DOCKER_SERVICE="${DOCKER_SERVICE:-es1}"
+
+docker network rm "$DOCKER_NETWORK" || true
+docker network create "$DOCKER_NETWORK" || true
+docker stop "$DOCKER_SERVICE" || true
+docker rm "$DOCKER_SERVICE" || true
+
+docker run --rm --env node.name="$DOCKER_SERVICE" \
+  --env discovery.zen.minimum_master_nodes=1 \
+  --env http.port=9200 \
+  --env 'ES_JAVA_OPTS=-Xms1g -Xmx1g -da:org.elasticsearch.xpack.ccr.index.engine.FollowingEngineAssertions' \
+  --env cluster.name=docker-elasticsearch \
+  --env cluster.routing.allocation.disk.threshold_enabled=false \
+  --env bootstrap.memory_lock=true \
+  --env xpack.security.enabled=false \
+  --env discovery.zen.ping.unicast.hosts="$DOCKER_SERVICE:9300", \
+  --ulimit nofile=65536:65536 \
+  --ulimit memlock=-1:-1 \
+  --publish 9200:9200 \
+  --publish 9300:9300 \
+  --detach \
+  --network="$DOCKER_NETWORK" \
+  --name="$DOCKER_SERVICE" \
+  "$DOCKER_IMAGE"
+
+docker run \
+  --network="$DOCKER_NETWORK" \
+  --rm \
+  appropriate/curl \
+  --max-time 120 \
+  --retry 120 \
+  --retry-delay 1 \
+  --retry-connrefused \
+  --show-error \
+  --silent \
+  "http://$DOCKER_SERVICE:3000"
+
+sleep 10
+
+echo "Elasticsearch up and running"

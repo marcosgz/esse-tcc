@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'esse'
+require 'pry'
+require 'csv'
+require 'dotenv/load'
+
+require_relative '../config/esse'
+require_relative '../app/indices/contatos_eleitorais_index'
+
+Pry.start

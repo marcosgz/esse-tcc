@@ -1,0 +1,15 @@
+{
+  "nome": {
+    "type": "string",
+    "index": "analyzed"
+  },
+  "cargo": {
+    "type": "keyword"
+  },
+  "num_legenda": {
+    "type": "short"
+  },
+  "email": {
+    "type": "keyword"
+  }
+}

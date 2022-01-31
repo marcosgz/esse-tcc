@@ -12,7 +12,7 @@ docker network create "$DOCKER_NETWORK" || true
 docker stop "$DOCKER_SERVICE" || true
 docker rm "$DOCKER_SERVICE" || true
 
-sudo sysctl -w vm.max_map_count=262144
+# sudo sysctl -w vm.max_map_count=262144
 
 docker run --rm --env node.name="$DOCKER_SERVICE" \
   --env discovery.zen.minimum_master_nodes=1 \

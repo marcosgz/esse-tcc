@@ -1,10 +1,12 @@
-# Exmplo de uso gem esse
+# Exemplo de uso gem esse
 
 Essa pequena aplicação foi desenvolvida no trabalho de conclusão de curso de engenharia de software.
 
 Como intuito de testar a [esse](https://github.com/marcosgz/esse) desenvolvido no TCC, foi criado uma aplicação seguindo os requisitos de extração de dados de múltiplas fontes, normalização, classificação e carregamento dos dados para um índice ElasticSearch. A aplicação consiste em um índice composto por dados eleitorais de candidatos e partidos e suas respectivos endereço eletrônicos.
 
-Os dados foram coletados do Portal de Dados Abertos do TSE. O portal dispo-nibiliza dados gerados ou custodiados pelo TSE, que podem ser livremente acessados,utilizados, modificados e compartilhados por qualquer pessoa. A Figura abaixo representa a estrutura de dados do índice que é composto pelos tipos "candidato"e "par-tido"ha ser obtido como resultado final da aplicação.
+Os dados foram coletados do Portal de Dados Abertos do TSE. O portal disponibiliza dados gerados ou custodiados pelo TSE, que podem ser livremente acessados, utilizados, modificados e compartilhados por qualquer pessoa. A Figura abaixo representa a estrutura de dados do índice que é composto pelos tipos "candidato" e "partido" como resultado final da aplicação.
+
+<img width="360" alt="contatos-eleitorais-schema" src="https://user-images.githubusercontent.com/18994/151868705-25caaaca-bc92-4c8d-a0be-43d37c3a0750.png">
 
 ## Desenvolvimento
 

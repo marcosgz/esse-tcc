@@ -462,7 +462,7 @@ Removendo um documento:
 
 ## Definição de índice em um único arquivo
 
-O DSL do índice permite que seja definito setting, mapping, collection e serializer no mesma classe do índice. O exemplo abaixo mostra como fica essa definição no caso do [ContatosEleitoraisIndex]((./app/indices/contatos_eleitorais_index.rb):):
+O DSL do índice permite que seja definito setting, mapping, collection e serializer no mesma classe do índice. O exemplo abaixo mostra como fica essa definição no caso do [ContatosEleitoraisIndex](./app/indices/contatos_eleitorais_index.rb):
 ```ruby
 require_relative '../services/csv_reader'
 
@@ -539,5 +539,5 @@ class ContatosEleitoraisIndex < Esse::Index
 end
 ```
 
-A implementação acima pode ser vista através do branch [inline-index](branch/inline-index).
+A implementação acima pode ser vista através do branch [inline-index](https://github.com/marcosgz/esse-tcc/blob/inline-index/app/indices/contatos_eleitorais_index.rb).
 

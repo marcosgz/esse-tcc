@@ -295,6 +295,7 @@ class ContatosEleitoraisIndex < Esse::Index
     end
   end
 end
+```
 
 ### Index final
 
